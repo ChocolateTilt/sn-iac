@@ -1,0 +1,34 @@
+---
+- name: Set up MID Server Host
+  ansible.builtin.include_tasks:
+    file: hostsetup.yml
+  tags: hostsetup, software
+
+- name: Set up MID Server Service
+  ansible.builtin.include_tasks:
+    file: midsetup.yml
+    apply:
+      tags:
+        - midsetup
+  loop: '{{ mid_servers }}'
+  when: item.state == 'new'
+  tags: midsetup
+
+- name: Set MID Operational Status
+  ansible.builtin.include_tasks:
+    file: opstatus.yml
+    apply:
+      tags:
+        - status
+  loop: '{{ mid_servers }}'
+  tags: status
+
+- name: MID Server Removal and Cleanup
+  ansible.builtin.include_tasks:
+    file: midremoval.yml
+    apply:
+      tags:
+        - midremoval
+  loop: '{{ mid_servers }}'
+  when: item.state == 'absent'
+  tags: midremoval

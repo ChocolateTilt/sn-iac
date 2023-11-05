@@ -1,0 +1,35 @@
+# State options: up, down, restart, absent
+# Last updated date: ****
+dev_mids:
+  hosts:
+    hostname.domainname.com:
+      mid_servers:
+        - name: # mid name
+          state: up
+          env: # instance_name
+          path: # dir path
+
+test_mids:
+  hosts:
+    hostname.domainname.com:
+      mid_servers:
+        - name: # mid name
+          state: up
+          env: # instance_name
+          path: # dir path
+
+prod_mids:
+  hosts:
+    hostname.domainname.com:
+      mid_servers:
+        - name: # mid name
+          state: up
+          env: # instance_name
+          path: # dir path
+
+# Groups of Groups
+all_mids:
+  children:
+    dev_mids:
+    test_mids:
+    prod_mids:

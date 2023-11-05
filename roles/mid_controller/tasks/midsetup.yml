@@ -1,0 +1,50 @@
+---
+- name: Create MID tmp Directory
+  ansible.windows.win_file:
+    state: directory
+    path: 'C:\ServiceNow\tmp'
+
+- name: Create MID Server Directory
+  ansible.windows.win_file:
+    state: directory
+    path: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}'
+
+# TODO: Need to find a more efficient way to do this. Copy operation takes a long time.
+# Downloading the MID installer did not work properly.
+- name: Copy MID Archive to Host
+  ansible.windows.win_copy:
+    src: './files/installers/midinstaller.zip'
+    dest: 'C:\Temp\ansible\midinstaller.zip'
+
+- name: Unzip MID Archive
+  community.windows.win_unzip:
+    src: 'C:\Temp\ansible\midinstaller.zip'
+    dest: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}'
+
+- name: Set config.xml to SH Prod Standards
+  ansible.windows.win_template:
+    src: './templates/config.xml.j2'
+    dest: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}\agent\config.xml'
+
+- name: Set wrapper-override.conf to SH Prod Standards
+  ansible.windows.win_template:
+    src: './templates/wrapper-override.conf.j2'
+    dest: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}\agent\conf\wrapper-override.conf'
+
+- name: Create MID Server Record # requires pysnow & servicenow.servicenow on localhost
+  delegate_to: 127.0.0.1 # localhost
+  servicenow.servicenow.snow_record:
+    instance: '{{ item.env }}'
+    state: present
+    table: 'ecc_agent'
+    username: '{{ mid_user_name }}'
+    password: '{{ mid_user_pass }}'
+    data: {
+      'name': '{{ item.name }}'
+    }
+
+- name: Install MID Service
+  ansible.windows.win_command: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}\agent\bin\InstallMID-NT.bat'
+
+- name: Run MID Service
+  ansible.windows.win_command: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}\agent\bin\StartMID-NT.bat'

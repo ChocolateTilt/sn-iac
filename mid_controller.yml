@@ -1,0 +1,6 @@
+---
+- name: Set Up MID Server Environment
+  hosts: sh_test_mids
+  gather_facts: false
+  roles:
+    - mid_controller

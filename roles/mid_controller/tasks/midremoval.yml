@@ -1,0 +1,20 @@
+---
+- name: Remove Service
+  ansible.windows.win_command: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}\agent\bin\UninstallMID-NT.bat'
+
+- name: Remove Directory
+  ansible.windows.win_file:
+    path: 'C:\ServiceNow\{{ item.name }}-{{ item.path }}'
+    state: absent
+
+# requires pysnow & servicenow.servicenow on localhost
+- name: Remove MID Record
+  delegate_to: 127.0.0.1 # localhost
+  servicenow.servicenow.snow_record:
+    instance: '{{ item.env }}'
+    state: absent
+    table: 'ecc_agent'
+    lookup_field: 'name'
+    number: '{{ item.name }}'
+    username: '{{ mid_user_name }}'
+    password: '{{ mid_user_pass }}'
