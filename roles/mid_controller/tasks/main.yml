@@ -2,7 +2,10 @@
 - name: Set up MID Server Host
   ansible.builtin.include_tasks:
     file: hostsetup.yml
-  tags: hostsetup, software
+    apply:
+      tags:
+        - hostsetup
+  tags: hostsetup
 
 - name: Set up MID Server Service
   ansible.builtin.include_tasks:

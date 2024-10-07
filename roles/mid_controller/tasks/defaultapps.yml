@@ -1,0 +1,31 @@
+---
+# 05OCT24 - task not called in main.yml, moved from hostsetup.yml
+- name: Install Applications
+  tags: software
+  block:
+    - name: Copy Notepad++ Installer
+      ansible.windows.win_copy:
+        src: './files/installers/{{ npp_name }}'
+        dest: 'C:\Temp\ansible\nppinstall.exe'
+        force: false
+
+    - name: Install Notepad++
+      ansible.builtin.win_package:
+        path: '{{ npp_loc }}'
+        creates_path: C:\Program Files\Notepad++\notepad++.exe
+        creates_version: '{{ npp_ver }}'
+        arguments: /S
+        state: present
+
+    - name: Install 7-Zip
+      ansible.builtin.win_package:
+        path: '{{ zip_url }}'
+        creates_path: C:\Program Files\7-Zip\7z.exe
+        creates_version: '{{ zip_ver }}'
+        arguments: /S
+        state: present
+
+    - name: Remove Notepad++ Installer
+      ansible.windows.win_file:
+        path: '{{ npp_loc }}'
+        state: absent
